@@ -25,9 +25,11 @@
 
         <!-- Login Section -->
         <section id="login-section" class="card">
-            <button id="Login" class="btn" onclick="Login()">
-                Login to Parking
-            </button>
+            <button id="Login" onclick="Login()">Login with SuperQi</button>
+
+            <div id="userInfo" style="display:none;">
+                <span>Logged in</span>
+            </div>
         </section>
 
         <!-- Scan Section (Initially Hidden) -->
@@ -84,24 +86,24 @@
                             "Content-Type": "application/json",
                         },
                         body: JSON.stringify({
-                            token: authCode, // نفس المدرّب
+                            token: authCode,
                         }),
                     })
                         .then((res) => res.json())
                         .then((data) => {
-                            token = data.token;
+                            token = data.token;   // ← هنا صار عندك token ✅
 
-                            // UI feedback فقط
+                            // 🔽🔽🔽 هذا مكان كود الـ UI بالضبط 🔽🔽🔽
+                            document.getElementById("Login").innerText = "Login Successful";
+                            document.getElementById("Login").disabled = true;
+
+                            document.getElementById("scanSection").style.display = "block";
+                            document.getElementById("paySection").style.display = "block";
+                            // 🔼🔼🔼 هنا ينتهي كود الـ UI 🔼🔼🔼
+
                             my.alert({
                                 content: "Login successful",
                             });
-
-                            // optional: تغيير شكل الزر (UI فقط)
-                            const loginBtn = document.getElementById("Login");
-                            if (loginBtn) {
-                                loginBtn.innerText = "Login Successful";
-                                loginBtn.disabled = true;
-                            }
                         })
                         .catch((err) => {
                             my.alert({
@@ -117,6 +119,7 @@
                 },
             });
         }
+
 
 
         // Scan QR Code
