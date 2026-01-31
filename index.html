@@ -41,7 +41,7 @@
         my.getAuthCode({
         scopes: ['auth_base'],
         success: (res) => {
-            my.alert({
+            document.write({
             content: res.authCode,
             });
     },
@@ -71,7 +71,7 @@
             type: 'qr',
             hideAlbum: false,
             success:(res)=>{
-                console.log('scan success:', res);
+                document.write('scan success:', res);
             },
             fail:(error)=>{
                 console.error('scan fail:', error);
