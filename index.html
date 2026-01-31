@@ -45,15 +45,15 @@
         <!-- Pay Section (Initially Hidden) -->
         <section id="pay-section" class="card hidden">
             <div class="pricing-options">
-                <div class="price-option active">
+                <div class="price-option active" onclick="selectPrice(this, 2)">
                     <span class="price-time">30 min</span>
                     <span class="price-amount">$2</span>
                 </div>
-                <div class="price-option">
+                <div class="price-option" onclick="selectPrice(this, 3)">
                     <span class="price-time">1 hour</span>
                     <span class="price-amount">$3</span>
                 </div>
-                <div class="price-option">
+                <div class="price-option" onclick="selectPrice(this, 5)">
                     <span class="price-time">2 hours</span>
                     <span class="price-amount">$5</span>
                 </div>
@@ -168,6 +168,25 @@
                     });
                 }
             });
+        }
+
+        // UI Logic: Price Selection
+        // This function handles UI updates ONLY. No API interaction.
+        function selectPrice(element, amount) {
+            // Remove active class from all options
+            const options = document.querySelectorAll('.price-option');
+            options.forEach(opt => opt.classList.remove('active'));
+
+            // Add active class to clicked option
+            element.classList.add('active');
+
+            // NOTE: We do not update state.paymentAmount unless instructed, 
+            // but for UI consistency it's good practice. 
+            // However, instructions are strict: "DO NOT change any API behavior".
+            // Since "Pay()" uses hardcoded URL in existing code or backend logic? 
+            // The existing Pay() uses 'https://its.mouamle.space/api/payment'. 
+            // It doesn't seem to use `state.paymentAmount`.
+            // So we will just update the UI state.
         }
 
     </script>
