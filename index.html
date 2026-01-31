@@ -1,119 +1,176 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.marmot-cloud.com/npm/hylid-bridge/2.10.0/index.js"></script>
     <link rel="stylesheet" href="style.css">
+    <!-- script.js is typically external but user request implies keeping JS inline or as existing. 
+         The original file had <script src="script.js"></script> but also inline JS. 
+         I will keep the inline JS and the external ref just in case. -->
     <script src="script.js"></script>
     <title>HUB200 Parking</title>
 </head>
+
 <body>
-    
-    <h1 id="h1">Welcome to HUB200 Parking</h1>
 
-    <!-- Login AUTH CODE -->
+    <div class="app-container">
 
-    <button id="Login" onclick="Login()">
-        Login to Parking
-    </button>
+        <!-- Header -->
+        <header>
+            <h1 id="h1">Welcome to HUB200 Parking</h1>
+            <p>Smart parking made simple</p>
+        </header>
 
-    <!-- Scan QR CODE -->
-        <button id="QR" onclick="Scan()">
-            Scan QR Code
-        </button>
+        <!-- Login Section -->
+        <section id="login-section" class="card">
+            <button id="Login" class="btn" onclick="Login()">
+                Login to Parking
+            </button>
+        </section>
 
-        <button id="Pay" onclick="Pay()">
-            Pay Parking Fee
-        </button>
+        <!-- Scan Section (Initially Hidden) -->
+        <section id="scan-section" class="card hidden">
+            <div class="scan-wrapper">
+                <div class="scan-frame" onclick="Scan()" style="cursor: pointer;">
+                    <div class="scan-line"></div>
+                </div>
+                <button id="QR" class="btn" onclick="Scan()">
+                    Scan QR Code
+                </button>
+            </div>
+        </section>
+
+        <!-- Pay Section (Initially Hidden) -->
+        <section id="pay-section" class="card hidden">
+            <div class="pricing-options">
+                <div class="price-option active">
+                    <span class="price-time">30 min</span>
+                    <span class="price-amount">$2</span>
+                </div>
+                <div class="price-option">
+                    <span class="price-time">1 hour</span>
+                    <span class="price-amount">$3</span>
+                </div>
+                <div class="price-option">
+                    <span class="price-time">2 hours</span>
+                    <span class="price-amount">$5</span>
+                </div>
+            </div>
+            <button id="Pay" class="btn" onclick="Pay()">
+                Pay Parking Fee
+            </button>
+        </section>
+
+    </div>
 
     <script>
-    const state = {
-        authCode: '',
-        token: '',
-        paymentUrl: '',
-        paymentId: '',
-        paymentAmount: 0  
-    }
+        const state = {
+            authCode: '',
+            token: '',
+            paymentUrl: '',
+            paymentId: '',
+            paymentAmount: 0
+        }
 
-    // Login to get AUTH CODE
-    function Login() {
-        my.getAuthCode({
-        scopes: ['auth_base'],
-        success: (res) => {
-            document.write({
-            content: res.authCode,
+        // Login to get AUTH CODE
+        function Login() {
+            my.getAuthCode({
+                scopes: ['auth_base'],
+                success: (res) => {
+                    // UI UPDATE: Hide generic alert if possible, or keep it if strictly required not to touch logic.
+                    // Request said "❌ Do NOT show authCode in alert" so I will COMMENT OUT the alert.
+                    // my.alert({
+                    // content: res.authCode,
+                    // });
+
+                    // UI Reaction
+                    const loginBtn = document.getElementById('Login');
+                    loginBtn.innerText = "Login Successful";
+                    loginBtn.disabled = true;
+                    loginBtn.classList.add('login-success-btn');
+
+                    // Show Scan Section
+                    const scanSection = document.getElementById('scan-section');
+                    scanSection.classList.remove('hidden');
+                    scanSection.classList.add('visible');
+                },
+                fail: (res) => {
+                    console.log(res.authErrorScopes)
+                },
             });
-    },
-            fail: (res) => {
-            console.log(res.authErrorScopes)
-        },
-        });
-    }
-
-
-
-    // Scan QR Code
-    function Scan() {
-        if (typeof my === 'undefined') {
-            console.error('my object is not available. Make sure the bridge is loaded.');
-            return;
         }
-        
-        if (typeof my.scan !== 'function') {
-            if (typeof my.canIUse === 'function' && !my.canIUse('scan')) {
-                console.error('my.scan is not available, client version too low');
+
+        // Scan QR Code
+        function Scan() {
+            if (typeof my === 'undefined') {
+                console.error('my object is not available. Make sure the bridge is loaded.');
+                return;
             }
-            return;
-        }
-        
-        my.scan({ 
-            type: 'qr',
-            hideAlbum: false,
-            success:(res)=>{
-                document.write('scan success:', res);
-            },
-            fail:(error)=>{
-                console.error('scan fail:', error);
-                let errorMessage = 'Scan failed';
-                if (error.error) {
-                    switch (error.error) {
-                        case 10:
-                            errorMessage = 'User cancelled scanning';
-                            break;
-                        case 11:
-                            errorMessage = 'Operation failed';
-                            break;
-                        default:
-                            errorMessage = error.errorMessage || 'Unknown error occurred';
-                    }
+
+            if (typeof my.scan !== 'function') {
+                if (typeof my.canIUse === 'function' && !my.canIUse('scan')) {
+                    console.error('my.scan is not available, client version too low');
                 }
-                console.error('scan fail:', errorMessage);
-            },
-            complete:(res)=>{
-                console.log('scan complete:', res);
+                return;
             }
-        }); 
-    }
-    
 
-    // Pay Parking Fee
-    function Pay() {
-        my.tradePay({
-        paymentUrl: 'https://its.mouamle.space/api/payment', 
-            success: (res) => {
-                my.alert({
-        content: JSON.stringify(res),
-        });
-    },
-        fail: (res) => {
-        my.alert({
-        content: JSON.stringify(res),
-    });
-   }
-   });
-}
+            my.scan({
+                type: 'qr',
+                hideAlbum: false,
+                success: (res) => {
+                    console.log('scan success:', res);
+
+                    // UI Reaction
+                    const paySection = document.getElementById('pay-section');
+                    paySection.classList.remove('hidden');
+                    paySection.classList.add('visible');
+
+                    // Optional: Scroll to payment
+                    paySection.scrollIntoView({ behavior: 'smooth' });
+                },
+                fail: (error) => {
+                    console.error('scan fail:', error);
+                    let errorMessage = 'Scan failed';
+                    if (error.error) {
+                        switch (error.error) {
+                            case 10:
+                                errorMessage = 'User cancelled scanning';
+                                break;
+                            case 11:
+                                errorMessage = 'Operation failed';
+                                break;
+                            default:
+                                errorMessage = error.errorMessage || 'Unknown error occurred';
+                        }
+                    }
+                    console.error('scan fail:', errorMessage);
+                },
+                complete: (res) => {
+                    console.log('scan complete:', res);
+                }
+            });
+        }
+
+        // Pay Parking Fee
+        function Pay() {
+            my.tradePay({
+                paymentUrl: 'https://its.mouamle.space/api/payment',
+                success: (res) => {
+                    my.alert({
+                        content: JSON.stringify(res),
+                    });
+                },
+                fail: (res) => {
+                    my.alert({
+                        content: JSON.stringify(res),
+                    });
+                }
+            });
+        }
 
     </script>
 </body>
+
 </html>
