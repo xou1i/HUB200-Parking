@@ -155,19 +155,35 @@
 
         // Pay Parking Fee
         function Pay() {
-            my.tradePay({
-                paymentUrl: 'https://its.mouamle.space/api/payment',
-                success: (res) => {
-                    my.alert({
-                        content: JSON.stringify(res),
-                    });
+            if (!token) {
+                my.alert({ content: "Please login first" });
+                return;
+            }
+
+            fetch("https://its.mouamle.space/api/payment", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: token,
                 },
-                fail: (res) => {
-                    my.alert({
-                        content: JSON.stringify(res),
+            })
+                .then((res) => res.json())
+                .then((data) => {
+                    my.tradePay({
+                        paymentUrl: data.url,
+                        success: () => {
+                            my.alert({
+                                content: "Payment successful",
+                            });
+                        },
                     });
-                }
-            });
+                })
+                .catch((err) => {
+                    my.alert({
+                        content: "Payment failed",
+                    });
+                    console.error(err);
+                });
         }
 
         // UI Logic: Price Selection
