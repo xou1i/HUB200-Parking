@@ -22,6 +22,11 @@
         <button id="QR" onclick="Scan()">
             Scan QR Code
         </button>
+
+        <button id="Pay" onclick="Pay()">
+            Pay Parking Fee
+        </button>
+
     <script>
     const state = {
         authCode: '',
@@ -31,6 +36,7 @@
         paymentAmount: 0  
     }
 
+    // Login to get AUTH CODE
     function Login() {
         my.getAuthCode({
         scopes: ['auth_base'],
@@ -47,7 +53,8 @@
 
 
 
-function Scan() {
+    // Scan QR Code
+    function Scan() {
         if (typeof my === 'undefined') {
             console.error('my object is not available. Make sure the bridge is loaded.');
             return;
@@ -89,6 +96,24 @@ function Scan() {
         }); 
     }
     
+
+    // Pay Parking Fee
+    function Pay() {
+        my.tradePay({
+        paymentUrl: state.paymentUrl, 
+            success: (res) => {
+                my.alert({
+        content: JSON.stringify(res),
+        });
+    },
+        fail: (res) => {
+        my.alert({
+        content: JSON.stringify(res),
+    });
+   }
+   });
+}
+
     </script>
 </body>
 </html>
