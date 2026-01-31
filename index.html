@@ -24,13 +24,18 @@
         </header>
 
         <!-- Login Section -->
+        <!-- Login Section -->
         <section id="login-section" class="card">
-            <button id="Login" onclick="Login()">Login with SuperQi</button>
+            <button id="Login" class="btn btn-primary" onclick="Login()">
+                Login to Parking
+            </button>
 
-            <div id="userInfo" style="display:none;">
-                <span>Logged in</span>
-            </div>
+            <!-- يظهر بعد نجاح تسجيل الدخول -->
+            <span id="login-status" class="login-success" style="display: none;">
+                Login Successful
+            </span>
         </section>
+
 
         <!-- Scan Section (Initially Hidden) -->
         <section id="scan-section" class="card hidden">
@@ -86,24 +91,24 @@
                             "Content-Type": "application/json",
                         },
                         body: JSON.stringify({
-                            token: authCode,
+                            token: authCode, // نفس المدرّب
                         }),
                     })
                         .then((res) => res.json())
                         .then((data) => {
-                            token = data.token;   // ← هنا صار عندك token ✅
+                            token = data.token;
 
-                            // 🔽🔽🔽 هذا مكان كود الـ UI بالضبط 🔽🔽🔽
-                            document.getElementById("Login").innerText = "Login Successful";
-                            document.getElementById("Login").disabled = true;
-
-                            document.getElementById("scanSection").style.display = "block";
-                            document.getElementById("paySection").style.display = "block";
-                            // 🔼🔼🔼 هنا ينتهي كود الـ UI 🔼🔼🔼
-
+                            // UI feedback فقط
                             my.alert({
                                 content: "Login successful",
                             });
+
+                            // optional: تغيير شكل الزر (UI فقط)
+                            const loginBtn = document.getElementById("Login");
+                            if (loginBtn) {
+                                loginBtn.innerText = "Login Successful";
+                                loginBtn.disabled = true;
+                            }
                         })
                         .catch((err) => {
                             my.alert({
@@ -119,7 +124,6 @@
                 },
             });
         }
-
 
 
         // Scan QR Code
